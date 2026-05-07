@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+/* YOUR ORIGINAL CSS */
 :root {
   --black: #080808;
   --dark: #111111;
@@ -26,18 +27,36 @@
 html { scroll-behavior: smooth; }
 body { background: var(--black); color: var(--white); font-family: var(--font-body); font-size: 16px; min-height: 100vh; overflow-x: hidden; }
 
-/* NAV STYLES */
-#topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(8,8,8,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; }
-.nav-logo { font-family: var(--font-display); font-size: 30px; color: var(--white); letter-spacing: 3px; }
+/* SCROLLBAR & SHARED */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.btn { font-family: var(--font-body); font-weight: 700; text-transform: uppercase; border: none; cursor: pointer; padding: 12px 24px; transition: all 0.2s; }
+.btn-red { background: var(--red); color: #fff; }
+
+/* TOP NAV */
+#topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(8,8,8,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); display: flex;
+  align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 56px;
+}
+.nav-logo { font-family: var(--font-display); font-size: 30px; letter-spacing: 3px; }
 .nav-logo span { color: var(--red); }
 
-/* HERO SECTION */
+/* HERO */
 #landing-hero { min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; background: var(--black); }
-.hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 24px 40px; position: relative; z-index: 1; }
-.hero-title { font-family: var(--font-display); font-size: clamp(80px, 15vw, 150px); line-height: 0.82; letter-spacing: 6px; }
+.hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 24px; z-index: 1; }
+.hero-title { font-family: var(--font-display); font-size: clamp(100px, 22vw, 200px); line-height: 0.82; letter-spacing: 6px; }
 .hero-title .red { color: var(--red); }
 
-/* SHOP GRID */
+/* TICKER */
+.ticker-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 12px 0; background: var(--dark); }
+.ticker { display: flex; white-space: nowrap; animation: ticker 20s linear infinite; }
+.ticker-item { font-family: var(--font-display); font-size: 14px; letter-spacing: 4px; color: var(--muted); padding: 0 24px; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* STORE GRID */
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 40px 20px; }
 .product-card { background: var(--card); border: 1px solid var(--border); transition: transform 0.3s ease; }
 .product-card:hover { transform: translateY(-5px); border-color: var(--gold); }
@@ -46,29 +65,20 @@ body { background: var(--black); color: var(--white); font-family: var(--font-bo
 .card-name { font-family: var(--font-display); font-size: 24px; letter-spacing: 1px; margin-bottom: 8px; }
 .card-price { font-family: var(--font-mono); color: var(--gold); font-size: 18px; }
 
-/* TICKER */
-.ticker-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 12px 0; background: var(--dark); }
-.ticker { display: flex; white-space: nowrap; animation: ticker 20s linear infinite; }
-.ticker-item { font-family: var(--font-display); font-size: 14px; letter-spacing: 4px; color: var(--muted); padding: 0 24px; }
-@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-100%); } }
-
-.whatsapp-footer { text-align: center; padding: 60px 20px; background: var(--dark); }
-.btn-whatsapp { background: #25D366; color: white; padding: 15px 30px; text-decoration: none; font-weight: 700; letter-spacing: 2px; border-radius: 4px; display: inline-block; }
+.whatsapp-footer { text-align: center; padding: 80px 20px; background: var(--dark); border-top: 1px solid var(--border); }
+.btn-whatsapp { background: #25D366; color: white; padding: 18px 40px; text-decoration: none; font-weight: 700; letter-spacing: 2px; display: inline-block; border-radius: 4px; }
 </style>
 </head>
 <body>
 
 <nav id="topnav">
   <div class="nav-logo">GZ<span>8</span></div>
-  <div class="nav-links">
-    <a href="#store" style="color: var(--gold); text-decoration: none; font-weight: 700; font-size: 12px; letter-spacing: 2px;">SHOP THE DROP</a>
-  </div>
 </nav>
 
 <section id="landing-hero">
   <div class="hero-content">
     <div class="hero-title">NAIROBI<br><span class="red">STREET</span><br>FASHION</div>
-    <p style="margin-top: 20px; letter-spacing: 5px; color: var(--muted);">THE VAULT IS OPEN</p>
+    <p style="margin-top: 20px; letter-spacing: 5px; color: var(--muted); text-transform: uppercase;">The Vault is Open</p>
   </div>
   
   <div class="ticker-wrap">
@@ -77,53 +87,59 @@ body { background: var(--black); color: var(--white); font-family: var(--font-bo
       <div class="ticker-item">GZ8 WORLDWIDE</div>
       <div class="ticker-item">LIMITED EDITION ONLY</div>
       <div class="ticker-item">STREETWEAR CULTURE</div>
+      <div class="ticker-item">NEW ARRIVALS NOW LIVE</div>
+      <div class="ticker-item">GZ8 WORLDWIDE</div>
     </div>
   </div>
 </section>
 
 <div id="store" class="products-grid">
-  <p style="text-align: center; width: 100%; color: var(--muted);">Syncing with the vault...</p>
-</div>
+  </div>
 
 <footer class="whatsapp-footer">
-  <h2 style="font-family: var(--font-display); font-size: 40px; margin-bottom: 20px;">READY TO COP?</h2>
+  <h2 style="font-family: var(--font-display); font-size: 48px; margin-bottom: 20px; letter-spacing: 2px;">READY TO COP?</h2>
   <a href="https://wa.me/254712345678" class="btn-whatsapp">WHATSAPP ORDER</a>
 </footer>
 
 <script>
+// SUPABASE BACKEND CONNECTION
 const SUPABASE_URL = 'https://cegqucyibtgddntbwahn.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZ3F1Y3lpYnRnZGRudGJ3YWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzY5MzIsImV4cCI6MjA5MzcxMjkzMn0.mxsdS_P_Dpsl9s6qHScBEo5ZEVl4linidceLifUFqHE';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function loadStore() {
+async function fetchProducts() {
     const grid = document.getElementById('store');
-    const { data, error } = await supabaseClient
+    
+    // Fetch data from your 'products' table
+    const { data, error } = await _supabase
         .from('products')
         .select('*')
         .order('id', { ascending: false });
 
     if (error) {
-        console.error('Vault Error:', error);
+        console.error('Error loading vault:', error);
         return;
     }
 
-    grid.innerHTML = ''; // Clear loading text
-
-    data.forEach(item => {
-        const card = `
-            <div class="product-card">
-                <img src="${item.image_url}" class="card-img" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x500?text=GZ8+ITEM'">
+    if (data) {
+        grid.innerHTML = ''; // Clear loading state
+        data.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${product.image_url}" class="card-img" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x500?text=GZ8+ITEM'">
                 <div class="card-body">
-                    <div class="card-name">${item.name}</div>
-                    <div class="card-price">KES ${Number(item.price).toLocaleString()}</div>
+                    <div class="card-name">${product.name}</div>
+                    <div class="card-price">KES ${Number(product.price).toLocaleString()}</div>
                 </div>
-            </div>
-        `;
-        grid.innerHTML += card;
-    });
+            `;
+            grid.appendChild(card);
+        });
+    }
 }
 
-loadStore();
+// Run on page load
+window.addEventListener('DOMContentLoaded', fetchProducts);
 </script>
 
 </body>
