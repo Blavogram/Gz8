@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GZ8 STUDIO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GZ8 STUDIO | ADMIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --red: #E8002D; --black: #080808; --white: #F4F0E8; }
         body { background: var(--black); color: var(--white); font-family: 'Barlow Condensed', sans-serif; margin: 0; }
-        nav { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid #222; sticky: top; background: var(--black); }
+        nav { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid #222; background: var(--black); }
         .logo { font-family: 'Bebas Neue'; font-size: 32px; letter-spacing: 2px; }
         .logo span { color: var(--red); }
-        .admin-panel { padding: 40px; max-width: 500px; margin: auto; display: none; }
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: #111; border: 1px solid #222; padding: 10px; }
-        .card img { width: 100%; height: 300px; object-fit: cover; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #333; }
-        button { width: 100%; padding: 15px; background: var(--red); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .nav-btn { background: none; border: 1px solid #333; width: auto; padding: 5px 15px; }
+        .container { padding: 40px; max-width: 500px; margin: auto; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: #111; border: 1px solid #222; padding: 10px; text-align: center; }
+        .card img { width: 100%; height: 250px; object-fit: cover; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #111; color: #fff; border: 1px solid #333; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--red); color: white; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .nav-btn { background: none; border: 1px solid #333; width: auto; padding: 5px 15px; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -25,66 +26,92 @@
     <nav>
         <div class="logo">GZ<span>8</span> STUDIO</div>
         <div>
-            <button class="nav-btn" onclick="toggleAdmin(false)">SHOP</button>
-            <button class="nav-btn" onclick="toggleAdmin(true)">ADMIN</button>
+            <button class="nav-btn" onclick="showSection('shop')">VIEW SHOP</button>
+            <button class="nav-btn" onclick="showSection('admin')">ADD DROP</button>
         </div>
     </nav>
 
-    <div id="admin-ui" class="admin-panel">
-        <h2>UPLOAD NEW DROP</h2>
-        <input type="text" id="name" placeholder="ITEM NAME">
-        <input type="number" id="price" placeholder="PRICE (KSH)">
-        <input type="file" id="image">
-        <button id="uploadBtn" onclick="upload()">PUSH TO CLOUD</button>
+    <div id="admin-ui" class="container" style="display: none;">
+        <h2 style="font-family: 'Bebas Neue'; letter-spacing: 1px;">NEW DROP UPLOAD</h2>
+        <input type="text" id="p-name" placeholder="PRODUCT NAME (e.g. GZ8 Tee)">
+        <input type="number" id="p-price" placeholder="PRICE IN KSH">
+        <input type="file" id="p-image" accept="image/*">
+        <button id="uploadBtn" onclick="handleUpload()">PUSH TO CLOUD</button>
     </div>
 
-    <div id="shop-ui" class="shop-grid"></div>
+    <div id="shop-ui" class="shop-grid">
+        <!-- Products will load here -->
+    </div>
 
     <script>
-        // REPLACE THESE WITH YOUR ACTUAL KEYS FROM SUPABASE SETTINGS
+        // CONFIGURATION
         const S_URL = 'https://cegqucyibtgddntbwahn.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZ3F1Y3lpYnRnZGRudGJ3YWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzY5MzIsImV4cCI6MjA5MzcxMjkzMn0.mxsdS_P_Dpsl9s6qHScBEo5ZEVl4linidceLifUFqHE';
         const _sb = supabase.createClient(S_URL, S_KEY);
 
-        function toggleAdmin(show) {
-            document.getElementById('admin-ui').style.display = show ? 'block' : 'none';
-            document.getElementById('shop-ui').style.display = show ? 'none' : 'grid';
+        function showSection(section) {
+            document.getElementById('admin-ui').style.display = section === 'admin' ? 'block' : 'none';
+            document.getElementById('shop-ui').style.display = section === 'shop' ? 'grid' : 'none';
         }
 
-        async function load() {
-            const { data } = await _sb.from('products').select('*');
-            const grid = document.getElementById('shop-ui');
-            grid.innerHTML = data.map(p => `
-                <div class="card">
-                    <img src="${p.image_url}">
-                    <h3>${p.name}</h3>
-                    <p>KSH ${p.price}</p>
-                </div>
-            `).join('');
-        }
-
-        async function upload() {
-            const btn = document.getElementById('uploadBtn');
-            const file = document.getElementById('image').files[0];
-            const name = document.getElementById('name').value;
-            const price = document.getElementById('price').value;
-
-            if (!file || !name) return alert("Fill everything!");
-            btn.innerText = "UPLOADING...";
-
-            // 1. Upload Image
-            const fName = Date.now() + "_" + file.name;
-            await _sb.storage.from('fashion-images').upload(fName, file);
-            const { data: urlObj } = _sb.storage.from('fashion-images').getPublicUrl(fName);
-
-            // 2. Save to Table
-            await _sb.from('products').insert([{ name, price, image_url: urlObj.publicUrl }]);
+        async function fetchProducts() {
+            const { data, error } = await _sb.from('products').select('*').order('id', { ascending: false });
+            if (error) console.error(error);
             
-            alert("DROP SUCCESSFUL!");
-            location.reload();
+            const grid = document.getElementById('shop-ui');
+            grid.innerHTML = data && data.length > 0 
+                ? data.map(p => `
+                    <div class="card">
+                        <img src="${p.image_url}" alt="${p.name}">
+                        <h3 style="margin: 10px 0 5px 0;">${p.name}</h3>
+                        <p style="color: var(--red); margin: 0;">KSH ${p.price}</p>
+                    </div>`).join('')
+                : '<p style="text-align:center; grid-column: 1/-1;">No drops yet. Go to Admin to add one.</p>';
         }
 
-        load();
+        async function handleUpload() {
+            const btn = document.getElementById('uploadBtn');
+            const file = document.getElementById('p-image').files[0];
+            const name = document.getElementById('p-name').value;
+            const price = document.getElementById('p-price').value;
+
+            if (!file || !name || !price) return alert("Fill in all fields and select a photo!");
+
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            try {
+                // 1. Upload to Storage
+                const fileName = `${Date.now()}_${file.name}`;
+                const { data: uploadData, error: uploadError } = await _sb.storage
+                    .from('fashion-images')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                // 2. Get Public URL
+                const { data: urlData } = _sb.storage.from('fashion-images').getPublicUrl(fileName);
+
+                // 3. Insert into Database
+                const { error: dbError } = await _sb.from('products').insert([
+                    { name: name, price: parseInt(price), image_url: urlData.publicUrl }
+                ]);
+
+                if (dbError) throw dbError;
+
+                alert("DROP SUCCESSFUL, BLAVO!");
+                location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert("Error: " + err.message);
+                btn.innerText = "PUSH TO CLOUD";
+                btn.disabled = false;
+            }
+        }
+
+        // Initial Load
+        fetchProducts();
     </script>
 </body>
 </html>
