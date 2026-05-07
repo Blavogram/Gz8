@@ -1,117 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GZ8 STUDIO | ADMIN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root { --red: #E8002D; --black: #080808; --white: #F4F0E8; }
-        body { background: var(--black); color: var(--white); font-family: 'Barlow Condensed', sans-serif; margin: 0; }
-        nav { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid #222; background: var(--black); }
-        .logo { font-family: 'Bebas Neue'; font-size: 32px; letter-spacing: 2px; }
-        .logo span { color: var(--red); }
-        .container { padding: 40px; max-width: 500px; margin: auto; }
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: #111; border: 1px solid #222; padding: 10px; text-align: center; }
-        .card img { width: 100%; height: 250px; object-fit: cover; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #111; color: #fff; border: 1px solid #333; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--red); color: white; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .nav-btn { background: none; border: 1px solid #333; width: auto; padding: 5px 15px; margin-left: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GZ8 — Nairobi Street Fashion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --black: #080808;
+  --dark: #111111;
+  --card: #1a1a1a;
+  --border: #2a2a2a;
+  --red: #E8002D;
+  --gold: #F5B800;
+  --green: #00A550;
+  --white: #F4F0E8;
+  --muted: #888;
+  --font-display: 'Bebas Neue', cursive;
+  --font-body: 'Barlow Condensed', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--white); font-family: var(--font-body); font-size: 16px; min-height: 100vh; overflow-x: hidden; }
+
+/* NAV STYLES */
+#topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(8,8,8,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; }
+.nav-logo { font-family: var(--font-display); font-size: 30px; color: var(--white); letter-spacing: 3px; }
+.nav-logo span { color: var(--red); }
+
+/* HERO SECTION */
+#landing-hero { min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; background: var(--black); }
+.hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 24px 40px; position: relative; z-index: 1; }
+.hero-title { font-family: var(--font-display); font-size: clamp(80px, 15vw, 150px); line-height: 0.82; letter-spacing: 6px; }
+.hero-title .red { color: var(--red); }
+
+/* SHOP GRID */
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 40px 20px; }
+.product-card { background: var(--card); border: 1px solid var(--border); transition: transform 0.3s ease; }
+.product-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+.card-img { width: 100%; height: 350px; object-fit: cover; }
+.card-body { padding: 20px; text-align: center; }
+.card-name { font-family: var(--font-display); font-size: 24px; letter-spacing: 1px; margin-bottom: 8px; }
+.card-price { font-family: var(--font-mono); color: var(--gold); font-size: 18px; }
+
+/* TICKER */
+.ticker-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 12px 0; background: var(--dark); }
+.ticker { display: flex; white-space: nowrap; animation: ticker 20s linear infinite; }
+.ticker-item { font-family: var(--font-display); font-size: 14px; letter-spacing: 4px; color: var(--muted); padding: 0 24px; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+.whatsapp-footer { text-align: center; padding: 60px 20px; background: var(--dark); }
+.btn-whatsapp { background: #25D366; color: white; padding: 15px 30px; text-decoration: none; font-weight: 700; letter-spacing: 2px; border-radius: 4px; display: inline-block; }
+</style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">GZ<span>8</span> STUDIO</div>
-        <div>
-            <button class="nav-btn" onclick="showSection('shop')">VIEW SHOP</button>
-            <button class="nav-btn" onclick="showSection('admin')">ADD DROP</button>
-        </div>
-    </nav>
+<nav id="topnav">
+  <div class="nav-logo">GZ<span>8</span></div>
+  <div class="nav-links">
+    <a href="#store" style="color: var(--gold); text-decoration: none; font-weight: 700; font-size: 12px; letter-spacing: 2px;">SHOP THE DROP</a>
+  </div>
+</nav>
 
-    <div id="admin-ui" class="container" style="display: none;">
-        <h2 style="font-family: 'Bebas Neue'; letter-spacing: 1px;">NEW DROP UPLOAD</h2>
-        <input type="text" id="p-name" placeholder="PRODUCT NAME (e.g. GZ8 Tee)">
-        <input type="number" id="p-price" placeholder="PRICE IN KSH">
-        <input type="file" id="p-image" accept="image/*">
-        <button id="uploadBtn" onclick="handleUpload()">PUSH TO CLOUD</button>
+<section id="landing-hero">
+  <div class="hero-content">
+    <div class="hero-title">NAIROBI<br><span class="red">STREET</span><br>FASHION</div>
+    <p style="margin-top: 20px; letter-spacing: 5px; color: var(--muted);">THE VAULT IS OPEN</p>
+  </div>
+  
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="ticker-item">NEW ARRIVALS NOW LIVE</div>
+      <div class="ticker-item">GZ8 WORLDWIDE</div>
+      <div class="ticker-item">LIMITED EDITION ONLY</div>
+      <div class="ticker-item">STREETWEAR CULTURE</div>
     </div>
+  </div>
+</section>
 
-    <div id="shop-ui" class="shop-grid">
-        <!-- Products will load here -->
-    </div>
+<div id="store" class="products-grid">
+  <p style="text-align: center; width: 100%; color: var(--muted);">Syncing with the vault...</p>
+</div>
 
-    <script>
-        // CONFIGURATION
-        const S_URL = 'https://cegqucyibtgddntbwahn.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZ3F1Y3lpYnRnZGRudGJ3YWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzY5MzIsImV4cCI6MjA5MzcxMjkzMn0.mxsdS_P_Dpsl9s6qHScBEo5ZEVl4linidceLifUFqHE';
-        const _sb = supabase.createClient(S_URL, S_KEY);
+<footer class="whatsapp-footer">
+  <h2 style="font-family: var(--font-display); font-size: 40px; margin-bottom: 20px;">READY TO COP?</h2>
+  <a href="https://wa.me/254712345678" class="btn-whatsapp">WHATSAPP ORDER</a>
+</footer>
 
-        function showSection(section) {
-            document.getElementById('admin-ui').style.display = section === 'admin' ? 'block' : 'none';
-            document.getElementById('shop-ui').style.display = section === 'shop' ? 'grid' : 'none';
-        }
+<script>
+const SUPABASE_URL = 'https://cegqucyibtgddntbwahn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZ3F1Y3lpYnRnZGRudGJ3YWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzY5MzIsImV4cCI6MjA5MzcxMjkzMn0.mxsdS_P_Dpsl9s6qHScBEo5ZEVl4linidceLifUFqHE';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function fetchProducts() {
-            const { data, error } = await _sb.from('products').select('*').order('id', { ascending: false });
-            if (error) console.error(error);
-            
-            const grid = document.getElementById('shop-ui');
-            grid.innerHTML = data && data.length > 0 
-                ? data.map(p => `
-                    <div class="card">
-                        <img src="${p.image_url}" alt="${p.name}">
-                        <h3 style="margin: 10px 0 5px 0;">${p.name}</h3>
-                        <p style="color: var(--red); margin: 0;">KSH ${p.price}</p>
-                    </div>`).join('')
-                : '<p style="text-align:center; grid-column: 1/-1;">No drops yet. Go to Admin to add one.</p>';
-        }
+async function loadStore() {
+    const grid = document.getElementById('store');
+    const { data, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .order('id', { ascending: false });
 
-        async function handleUpload() {
-            const btn = document.getElementById('uploadBtn');
-            const file = document.getElementById('p-image').files[0];
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
+    if (error) {
+        console.error('Vault Error:', error);
+        return;
+    }
 
-            if (!file || !name || !price) return alert("Fill in all fields and select a photo!");
+    grid.innerHTML = ''; // Clear loading text
 
-            btn.innerText = "UPLOADING...";
-            btn.disabled = true;
+    data.forEach(item => {
+        const card = `
+            <div class="product-card">
+                <img src="${item.image_url}" class="card-img" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x500?text=GZ8+ITEM'">
+                <div class="card-body">
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-price">KES ${Number(item.price).toLocaleString()}</div>
+                </div>
+            </div>
+        `;
+        grid.innerHTML += card;
+    });
+}
 
-            try {
-                // 1. Upload to Storage
-                const fileName = `${Date.now()}_${file.name}`;
-                const { data: uploadData, error: uploadError } = await _sb.storage
-                    .from('fashion-images')
-                    .upload(fileName, file);
+loadStore();
+</script>
 
-                if (uploadError) throw uploadError;
-
-                // 2. Get Public URL
-                const { data: urlData } = _sb.storage.from('fashion-images').getPublicUrl(fileName);
-
-                // 3. Insert into Database
-                const { error: dbError } = await _sb.from('products').insert([
-                    { name: name, price: parseInt(price), image_url: urlData.publicUrl }
-                ]);
-
-                if (dbError) throw dbError;
-
-                alert("DROP SUCCESSFUL, BLAVO!");
-                location.reload();
-
-            } catch (err) {
-                console.error(err);
-                alert("Error: " + err.message);
-                btn.innerText = "PUSH TO CLOUD";
-                btn.disabled = false;
-            }
-        }
-
-        // Initial Load
-        fetchProducts();
-    </script>
 </body>
 </html>
