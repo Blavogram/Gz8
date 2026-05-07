@@ -1760,16 +1760,60 @@ function renderColorTags() {
     </div>`).join('');
 }
 
-function handleImgUpload(e) {
+async function handleImgUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    document.getElementById('ap-img').value = ev.target.result;
-    const prev = document.getElementById('ap-previews');
-    prev.innerHTML = `<img class="preview-img" src="${ev.target.result}">`;
-  };
-  reader.readAsDataURL(file);
+
+  const prev = document.getElementById('ap-previews');
+  const urlField = document.getElementById('ap-img');
+
+  // Show loading state
+  prev.innerHTML = `<div style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:10px 0"><div style="width:20px;height:20px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div> Uploading image...</div>`;
+
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const res = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: { Authorization: 'Client-ID 546c25a59c58ad7' },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      const url = data.data.link;
+      urlField.value = url;
+      prev.innerHTML = `
+        <div style="position:relative;display:inline-block">
+          <img class="preview-img" src="${url}" style="width:100px;height:100px">
+          <div style="font-size:10px;color:var(--green);letter-spacing:1px;margin-top:6px">✅ Uploaded — visible to all customers</div>
+        </div>`;
+      toast('Image uploaded successfully ✓');
+    } else {
+      throw new Error('Imgur upload failed');
+    }
+  } catch(err) {
+    // Fallback to base64 with warning
+    const reader = new FileReader();
+    reader.onload = ev => {
+      urlField.value = ev.target.result;
+      prev.innerHTML = `
+        <img class="preview-img" src="${ev.target.result}">
+        <div style="font-size:11px;color:var(--red);margin-top:6px;letter-spacing:1px">⚠️ Upload failed — image only visible to you. Check internet connection.</div>`;
+    };
+    reader.readAsDataURL(file);
+    toast('Upload failed — try pasting an image URL instead', true);
+  }
+}
+
+// Add spin animation if not present
+if (!document.getElementById('spin-style')) {
+  const s = document.createElement('style');
+  s.id = 'spin-style';
+  s.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
 }
 
 function saveProduct() {
@@ -1957,4 +2001,3 @@ renderAll();
 </script>
 </body>
 </html>
- html><html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="style.css"> <script src="script.js" defer></script> <title>GZ8 Nairobi Street Fashion</title> </head> <body> <header> <h1>Welcome to GZ8 Nairobi Street Fashion</h1> <nav> <ul> <li><a href="#products">Products</a></li> <li><a href="#cart">Cart</a></li> <li><a href="#wishlist">Wishlist</a></li> <li><a href="#admin">Admin Panel</a></li> <li><a href="https://wa.me/your_number">WhatsApp</a></li> </ul> </nav> </header> <main> <section id="products"> <h2>Our Products</h2> <div class="product-card"> <h3>Product Name</h3> <p>Product Description</p> <p>Price: $20</p> <button>Add to Cart</button> </div> <!-- Repeat for other products --> </section> <section id="cart"> <h2>Your Cart</h2> <p>No items in cart.</p> <!-- Cart Functionality --> </section> <section id="wishlist"> <h2>Your Wishlist</h2> <p>No items in wishlist.</p> <!-- Wishlist Functionality --> </section> <section id="admin"> <h2>Admin Panel</h2> <p>Manage Products</p> <!-- Admin Functionality --> </section> </main> <footer> <p>&copy; 2026 GZ8 Nairobi Street Fashion. All Rights Reserved.</p> </footer> </body> </html>
