@@ -232,6 +232,28 @@ function sendOrder() {
 
 window.onload = initStore;
 </script>
+  async function initStore() {
+    // This pulls everything from your products table
+    const { data, error } = await _supabase.from('products').select('*').order('id', { ascending: false });
+    if (error) return;
+
+    const grid = document.getElementById('store');
+    grid.innerHTML = ''; 
+    
+    data.forEach(item => {
+        // We add a 'data-category' attribute so we can filter them later if we want
+        grid.innerHTML += `
+            <div class="product-card" data-category="${item.category}">
+                <img src="${item.img || item.image_url}" class="card-img" alt="${item.name}">
+                <div class="card-body">
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-price">KSH ${Number(item.price).toLocaleString()}</div>
+                    <button class="btn-add" onclick="addToBasket('${item.name}', ${item.price})">ADD TO BASKET</button>
+                </div>
+            </div>
+        `;
+    });
+}
 
 </body>
 </html>
