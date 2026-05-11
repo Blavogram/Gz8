@@ -228,6 +228,127 @@ function sendOrder() {
 
 window.onload = initStore;
 </script>
+<script>
+// CONFIG
+const SUPABASE_URL = "https://cegqucyibtgddntbwahn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZ3F1Y3lpYnRnZGRudGJ3YWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzY5MzIsImV4cCI6MjA5MzcxMjkzMn0.mxsdS_P_Dpsl9s6qHScBEo5ZEVl4linidceLifUFqHE";
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let allProducts = []; // This stores the full master list
+let basket = [];
+
+// 1. INITIAL LOAD: Fetch everything once from Supabase
+async function initStore() {
+    const { data, error } = await _supabase.from('products').select('*').order('id', { ascending: false });
+    if (error) {
+        console.error("Supabase error:", error);
+        return;
+    }
+    allProducts = data; // Save the data so we don't have to call the database again to filter
+    renderProducts(allProducts);
+}
+
+// 2. RENDER: This draws the products on the screen
+function renderProducts(products) {
+    const grid = document.getElementById('store');
+    grid.innerHTML = '';
+    
+    if (products.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; padding: 100px; text-align: center; font-family: var(--font-mono); color: var(--muted);">NO ITEMS FOUND IN THIS CATEGORY.</div>`;
+        return;
+    }
+
+    products.forEach(item => {
+        grid.innerHTML += `
+            <div class="product-card">
+                <img src="${item.img || item.image_url}" class="card-img" alt="${item.name}">
+                <div class="card-body">
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-price">KSH ${Number(item.price).toLocaleString()}</div>
+                    <button class="btn-add" onclick="addToBasket('${item.name}', ${item.price})">ADD TO BASKET</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// 3. FILTER: This is called when you click "SHIRTS", "HATS", etc.
+function filterStore(cat, btn) {
+    // UI: Move the red underline to the clicked button
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // LOGIC: Filter the master list
+    if (cat === 'all') {
+        renderProducts(allProducts);
+    } else {
+        const filtered = allProducts.filter(item => 
+            item.category && item.category.toLowerCase() === cat.toLowerCase()
+        );
+        renderProducts(filtered);
+    }
+}
+
+// 4. BASKET LOGIC
+function addToBasket(name, price) {
+    basket.push({ name, price });
+    updateBasketUI();
+    document.getElementById('basket-toggle').style.display = 'block';
+}
+
+function toggleBasket() {
+    document.getElementById('basket-panel').classList.toggle('active');
+}
+
+function updateBasketUI() {
+    const list = document.getElementById('basket-list');
+    let total = 0;
+    list.innerHTML = '';
+    
+    basket.forEach((item, index) => {
+        total += item.price;
+        list.innerHTML += `
+            <div class="basket-item">
+                <div>
+                    <div style="font-size:20px; font-family:var(--font-display);">${item.name}</div>
+                    <div style="color:var(--gold);">KSH ${item.price.toLocaleString()}</div>
+                </div>
+                <button onclick="removeFromBasket(${index})" style="background:none; border:none; color:var(--red); font-family:var(--font-display); cursor:pointer;">REMOVE</button>
+            </div>
+        `;
+    });
+    
+    document.getElementById('basket-total').innerText = `KSH ${total.toLocaleString()}`;
+    document.getElementById('basket-count').innerText = basket.length;
+}
+
+function removeFromBasket(index) {
+    basket.splice(index, 1);
+    updateBasketUI();
+    if (basket.length === 0) {
+        document.getElementById('basket-toggle').style.display = 'none';
+        if(document.getElementById('basket-panel').classList.contains('active')) toggleBasket();
+    }
+}
+
+// 5. WHATSAPP ORDER
+function sendOrder() {
+    const myNumber = "254118359925";
+    let message = "*NEW GZ8 ORDER*%0A------------------%0A";
+    
+    basket.forEach((item, i) => {
+        message += `${i+1}. ${item.name} - KSH ${item.price.toLocaleString()}%0A`;
+    });
+    
+    const grandTotal = basket.reduce((acc, curr) => acc + curr.price, 0);
+    message += "------------------%0A";
+    message += `*TOTAL: KSH ${grandTotal.toLocaleString()}*%0A%0A_Please confirm my order._`;
+    
+    window.open(`https://wa.me/${myNumber}?text=${message}`, '_blank');
+}
+
+// RUN ON START
+window.onload = initStore;
+</script>
 </body>
 </html>
